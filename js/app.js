@@ -6,6 +6,7 @@
   const neatBtn = document.getElementById("neatBtn");
   const uglyBtn = document.getElementById("uglyBtn");
   const diagToggle = document.getElementById("diagToggle");
+  const parallelToggle = document.getElementById("parallelToggle");
   const symToggle = document.getElementById("symToggle");
 
   const state = {
@@ -15,6 +16,7 @@
     drag: null,
     lastGood: [],
     showDiagonals: true,
+    showParallel: false,
     showSymmetry: false,
     hover: -1,
   };
@@ -74,7 +76,29 @@
     shapeSelect.innerHTML = SHAPES.map((s) => `<option value="${s.id}">${s.name}</option>`).join("");
     shapeSelect.value = state.shapeId;
     const tree = document.getElementById("tree");
-    tree.innerHTML = SHAPES.map((s) => `<button type="button" data-id="${s.id}">${s.name}</button>`).join("");
+    tree.innerHTML = `
+      <div class="tree-top">
+        <button type="button" data-id="kite">Kite</button>
+        <span class="tree-link" aria-hidden="true"></span>
+        <div class="tree-root">
+          <button type="button" data-id="quadrilateral">Quadrilateral</button>
+        </div>
+      </div>
+      <div class="tree-families">
+        <div class="family">
+          <button type="button" data-id="parallelogram">Parallelogram</button>
+          <div class="family-branch">
+            <button type="button" data-id="rhombus">Rhombus</button>
+            <button type="button" data-id="rectangle">Rectangle</button>
+          </div>
+          <button type="button" data-id="square">Square</button>
+        </div>
+        <div class="family">
+          <button type="button" data-id="trapezoid">Trapezoid</button>
+          <button type="button" data-id="isoscelesTrapezoid">Isosceles Trapezoid</button>
+        </div>
+      </div>
+    `;
     tree.querySelectorAll("button").forEach((btn) => {
       btn.addEventListener("click", () => setShape(btn.dataset.id));
     });
@@ -187,6 +211,60 @@
     ctx.restore();
   }
 
+  function strokeSide(p1, p2, color) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawChevrons(p1, p2, count, color) {
+    const tangent = norm(sub(p2, p1));
+    if (len(tangent) < EPS) return;
+    const normal = perp(tangent);
+    const c = mid(p1, p2);
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    for (let i = 0; i < count; i++) {
+      const o = add(c, scale(tangent, (i - (count - 1) / 2) * 10));
+      const tip = add(o, scale(tangent, 5));
+      const a = add(o, add(scale(tangent, -4), scale(normal, 6)));
+      const b = add(o, add(scale(tangent, -4), scale(normal, -6)));
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(tip.x, tip.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawParallelSides() {
+    if (!state.showParallel) return;
+    const m = measure(state.points);
+    const [A, B, C, D] = state.points;
+    if (m.abParCD) {
+      strokeSide(A, B, "#f0a36b");
+      strokeSide(D, C, "#f0a36b");
+      drawChevrons(A, B, 1, "#f0a36b");
+      drawChevrons(D, C, 1, "#f0a36b");
+    }
+    if (m.adParBC) {
+      strokeSide(A, D, "#c084fc");
+      strokeSide(B, C, "#c084fc");
+      drawChevrons(A, D, 2, "#c084fc");
+      drawChevrons(B, C, 2, "#c084fc");
+    }
+  }
+
   function drawDiagonals() {
     if (!state.showDiagonals) return;
     const [A, B, C, D] = state.points;
@@ -262,6 +340,7 @@
     drawGrid(w, h);
     if (state.points.length === 4) {
       drawQuad();
+      drawParallelSides();
       drawDiagonals();
       drawSymmetry();
       drawMeasures();
@@ -374,6 +453,10 @@
       state.showDiagonals = diagToggle.checked;
       draw();
     });
+    parallelToggle.addEventListener("change", () => {
+      state.showParallel = parallelToggle.checked;
+      draw();
+    });
     symToggle.addEventListener("change", () => {
       state.showSymmetry = symToggle.checked;
       draw();
@@ -388,6 +471,11 @@
       if (event.key === "d") {
         diagToggle.checked = !diagToggle.checked;
         state.showDiagonals = diagToggle.checked;
+        draw();
+      }
+      if (event.key === "p") {
+        parallelToggle.checked = !parallelToggle.checked;
+        state.showParallel = parallelToggle.checked;
         draw();
       }
       if (event.key === "s") {

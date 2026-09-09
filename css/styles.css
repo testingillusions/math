@@ -268,23 +268,149 @@ body {
 
 .tree {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
 }
 
 .tree button {
   border: 1px solid var(--border);
-  background: transparent;
+  background: #10131a;
   color: var(--muted);
-  border-radius: 999px;
-  padding: 4px 8px;
-  font-size: 0.72rem;
+  border-radius: 8px;
+  padding: 6px 4px;
+  font-size: 0.68rem;
+  line-height: 1.2;
   cursor: pointer;
+  width: 100%;
 }
 
 .tree button.active {
   color: var(--accent);
   border-color: var(--accent);
+}
+
+.tree-top {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.tree-top > [data-id="kite"] {
+  flex: 0 0 78px;
+  width: 78px;
+}
+
+.tree-link {
+  flex: 0 0 12px;
+  height: 1px;
+  background: var(--border);
+}
+
+.tree-root {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.tree-root button {
+  width: auto;
+  min-width: 58%;
+  padding: 6px 12px;
+}
+
+.tree-root::after {
+  content: "";
+  width: 1px;
+  height: 12px;
+  background: var(--border);
+}
+
+.tree-families {
+  display: grid;
+  grid-template-columns: 1.25fr 0.95fr;
+  gap: 8px;
+  position: relative;
+  padding-top: 1px;
+  margin-left: 0;
+}
+
+.tree-families::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 16%;
+  right: 16%;
+  height: 1px;
+  background: var(--border);
+}
+
+.family {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.family::before {
+  content: "";
+  width: 1px;
+  height: 12px;
+  background: var(--border);
+}
+
+.family > button + button,
+.family-branch {
+  margin-top: 10px;
+  position: relative;
+}
+
+.family > button + button::before,
+.family-branch::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 1px;
+  height: 10px;
+  background: var(--border);
+}
+
+.family-branch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  width: 100%;
+}
+
+.family-branch::before {
+  left: 25%;
+  width: 50%;
+  height: 10px;
+  background: transparent;
+  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.family-branch + button {
+  margin-top: 10px;
+  position: relative;
+}
+
+.family-branch + button::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 25%;
+  width: 50%;
+  height: 10px;
+  background: transparent;
+  border-bottom: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
 }
 
 .grid-2 {
